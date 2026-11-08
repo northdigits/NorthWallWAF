@@ -172,11 +172,44 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 .attack-bar { height: 100%; background: var(--danger); border-radius: 5px; transition: width 0.6s; }
 .attack-count { font-weight: 700; min-width: 40px; text-align: right; color: var(--danger); }
 
+/* ---- COPY COMMAND BOX ---- */
+.cmd-box {
+    display: flex;
+    align-items: center;
+    background: #0f172a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    gap: 12px;
+    margin: 8px 0;
+}
+.cmd-box code {
+    flex: 1;
+    color: #7dd3fc;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 13px;
+    word-break: break-all;
+}
+.cmd-copy-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    border-radius: 5px;
+    padding: 5px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    white-space: nowrap;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+.cmd-copy-btn:hover  { background: rgba(255,255,255,0.2); }
+.cmd-copy-btn.copied { background: var(--success); border-color: var(--success); }
+
 /* ---- RESPONSIVE ---- */
 @media (max-width: 768px) {
     .nw-cards { grid-template-columns: 1fr 1fr; }
     .nw-tabs { overflow-x: auto; }
     .nw-tab  { white-space: nowrap; }
+    .cmd-box { flex-direction: column; align-items: flex-start; }
 }
 </style>
 </head>
@@ -260,6 +293,35 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
             <h3>🎯 Top Attack Types</h3>
             <div class="attack-list" id="attack-type-chart">
                 <div style="color:var(--text-mute); font-size:13px;">Loading...</div>
+            </div>
+        </div>
+
+        <div class="nw-section">
+            <h3>⚡ Quick Commands</h3>
+            <p style="font-size:12px;color:var(--text-mute);margin-bottom:14px;">Copy and run these commands directly on your server via SSH.</p>
+
+            <div style="margin-bottom:10px;">
+                <div style="font-size:12px;font-weight:600;color:var(--text-mute);margin-bottom:6px;">📦 Install / Reinstall</div>
+                <div class="cmd-box">
+                    <code>bash &lt;(curl -sL https://raw.githubusercontent.com/northdigits/NorthWallWAF/main/install.sh) install</code>
+                    <button class="cmd-copy-btn" onclick="copyCmd(this, 'bash <(curl -sL https://raw.githubusercontent.com/northdigits/NorthWallWAF/main/install.sh) install')">📋 Copy</button>
+                </div>
+            </div>
+
+            <div style="margin-bottom:10px;">
+                <div style="font-size:12px;font-weight:600;color:var(--text-mute);margin-bottom:6px;">🔄 Update to Latest</div>
+                <div class="cmd-box">
+                    <code>bash /www/server/panel/plugin/northwall_waf/install.sh update</code>
+                    <button class="cmd-copy-btn" onclick="copyCmd(this, 'bash /www/server/panel/plugin/northwall_waf/install.sh update')">📋 Copy</button>
+                </div>
+            </div>
+
+            <div style="margin-bottom:4px;">
+                <div style="font-size:12px;font-weight:600;color:var(--text-mute);margin-bottom:6px;">🗑️ Uninstall</div>
+                <div class="cmd-box">
+                    <code>bash /www/server/panel/plugin/northwall_waf/install.sh uninstall</code>
+                    <button class="cmd-copy-btn" onclick="copyCmd(this, 'bash /www/server/panel/plugin/northwall_waf/install.sh uninstall')">📋 Copy</button>
+                </div>
             </div>
         </div>
 
@@ -792,6 +854,36 @@ function saveTelegramConfig() {
 function testTelegram() {
     nwAPI('test_telegram', null, function(res) {
         alert(res.msg);
+    });
+}
+
+// ==========================================
+// COPY COMMAND
+// ==========================================
+function copyCmd(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = '✅ Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+            btn.textContent = '📋 Copy';
+            btn.classList.remove('copied');
+        }, 2000);
+    }).catch(() => {
+        // Fallback for older browsers
+        const el = document.createElement('textarea');
+        el.value = text;
+        el.style.position = 'fixed';
+        el.style.opacity = '0';
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        btn.textContent = '✅ Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+            btn.textContent = '📋 Copy';
+            btn.classList.remove('copied');
+        }, 2000);
     });
 }
 
