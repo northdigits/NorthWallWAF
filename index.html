@@ -1,385 +1,376 @@
 <style>
 /* ========================================================
-   NorthWall WAF - Full View Styles
+   NorthWall WAF - Official aaPanel Plugin Layout (1100x720)
    ======================================================== */
-.nw-full-viewport {
-    padding: 15px 25px 40px 25px;
-    background: #f8fafc;
-    min-height: 100%;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-    color: #1e293b;
+.nw-app {
+    width: 100%;
+    min-height: 640px;
+    background: #fff;
+    color: #333;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 13px;
+    box-sizing: border-box;
 }
 
-/* Header */
-.nw-header-strip {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
+/* Header Strip */
+.nw-header {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
     padding: 14px 20px;
-    margin-bottom: 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
-.nw-header-strip .title-flex {
+.nw-header .brand {
     display: flex;
     align-items: center;
     gap: 12px;
 }
-.nw-header-strip h3 {
+.nw-header .brand h3 {
     margin: 0;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
-    color: #0f172a;
+    color: #1e293b;
 }
-.nw-header-strip span.sub {
+.nw-header .brand span {
     font-size: 12px;
     color: #64748b;
 }
 
 /* 4 Metric Cards */
-.nw-metric-row {
+.nw-metrics {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 16px;
-}
-.nw-stat-tile {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
+    gap: 14px;
     padding: 16px 20px;
+}
+.nw-card {
+    background: #fafafa;
+    border: 1px solid #e6e6e6;
+    border-radius: 4px;
+    padding: 14px 18px;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 14px;
 }
-.nw-stat-tile .tile-icon { font-size: 32px; }
-.nw-stat-tile .tile-val  { font-size: 26px; font-weight: 700; color: #0f172a; line-height: 1.1; }
-.nw-stat-tile .tile-lbl  { font-size: 12px; color: #64748b; margin-top: 4px; font-weight: 600; text-transform: uppercase; }
-.nw-stat-tile.danger .tile-val { color: #ef4444; }
-.nw-stat-tile.success .tile-val { color: #10b981; }
-.nw-stat-tile.warning .tile-val { color: #f59e0b; }
+.nw-card .icon { font-size: 28px; }
+.nw-card .val  { font-size: 24px; font-weight: 700; color: #333; line-height: 1.1; }
+.nw-card .lbl  { font-size: 11px; color: #888; text-transform: uppercase; font-weight: 600; margin-top: 2px; }
+.nw-card.danger .val { color: #d32f2f; }
+.nw-card.warning .val { color: #f57c00; }
+.nw-card.success .val { color: #20a53a; }
 
-/* Tabs */
-.nw-card-container {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    overflow: hidden;
-}
-.nw-tab-strip {
+/* aaPanel Tabs */
+.nw-tabs {
     display: flex;
-    background: #f8fafc;
-    border-bottom: 2px solid #e2e8f0;
-    padding: 0 10px;
+    background: #fff;
+    border-bottom: 2px solid #20a53a;
+    padding: 0 20px;
 }
-.nw-tab-link {
-    padding: 12px 24px;
+.nw-tab {
+    padding: 10px 20px;
     cursor: pointer;
     font-size: 13px;
     font-weight: 600;
-    color: #64748b;
-    border-bottom: 2px solid transparent;
+    color: #666;
+    border: 1px solid transparent;
+    border-bottom: none;
     margin-bottom: -2px;
     transition: all 0.2s;
     user-select: none;
 }
-.nw-tab-link:hover { color: #10b981; }
-.nw-tab-link.on {
-    color: #10b981;
-    border-bottom-color: #10b981;
-    background: #fff;
+.nw-tab:hover { color: #20a53a; }
+.nw-tab.on {
+    color: #fff;
+    background: #20a53a;
+    border-radius: 4px 4px 0 0;
 }
 
-.nw-pane-area {
-    padding: 24px;
-    display: none;
+/* Tab Panes */
+.nw-body {
+    padding: 20px;
+    max-height: 440px;
+    overflow-y: auto;
 }
-.nw-pane-area.on { display: block; }
+.nw-pane { display: none; }
+.nw-pane.on { display: block; }
 
 /* Switch Rows */
-.nw-toggle-line {
+.nw-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 0;
-    border-bottom: 1px dashed #e2e8f0;
+    padding: 12px 0;
+    border-bottom: 1px dashed #eee;
 }
-.nw-toggle-line:last-child { border-bottom: none; }
-.nw-toggle-line .t-desc h5 { margin: 0; font-size: 14px; font-weight: 600; color: #1e293b; }
-.nw-toggle-line .t-desc p  { margin: 4px 0 0 0; font-size: 12px; color: #64748b; }
+.nw-row:last-child { border-bottom: none; }
+.nw-row .info h5 { margin: 0; font-size: 13px; font-weight: 600; color: #333; }
+.nw-row .info p  { margin: 3px 0 0 0; font-size: 11px; color: #888; }
 
-.nw-ui-switch {
-    position: relative;
-    display: inline-block;
-    width: 44px;
-    height: 24px;
-}
-.nw-ui-switch input { opacity: 0; width: 0; height: 0; }
-.nw-ui-slider {
-    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-    background: #cbd5e1; transition: .2s; border-radius: 24px;
-}
-.nw-ui-slider:before {
-    position: absolute; content: ""; height: 18px; width: 18px;
-    left: 3px; bottom: 3px; background: white;
-    transition: .2s; border-radius: 50%;
-}
-.nw-ui-switch input:checked + .nw-ui-slider { background: #10b981; }
-.nw-ui-switch input:checked + .nw-ui-slider:before { transform: translateX(20px); }
+/* Tables */
+.nw-tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
+.nw-tbl th { background: #f7f7f7; color: #666; padding: 9px 12px; text-align: left; font-weight: 600; border-bottom: 1px solid #e6e6e6; }
+.nw-tbl td { padding: 10px 12px; border-bottom: 1px solid #f2f2f2; }
+.nw-tbl tr:hover td { background: #fafafa; }
 
-/* Table */
-.nw-data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.nw-data-table th { background: #f8fafc; padding: 10px 14px; text-align: left; font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0; }
-.nw-data-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; }
-.nw-data-table tr:hover td { background: #f8fafc; }
-
-.btn-nw-act {
-    padding: 6px 14px;
+/* Buttons */
+.btn-act {
+    padding: 5px 12px;
     border: none;
-    border-radius: 4px;
+    border-radius: 3px;
     cursor: pointer;
     font-size: 12px;
     font-weight: 600;
     transition: all 0.2s;
 }
-.btn-nw-act.success { background: #10b981; color: #fff; }
-.btn-nw-act.success:hover { background: #059669; }
-.btn-nw-act.danger  { background: #ef4444; color: #fff; }
-.btn-nw-act.danger:hover  { background: #dc2626; }
-.btn-nw-act.outline { background: transparent; border: 1px solid #cbd5e1; color: #475569; }
+.btn-act.success { background: #20a53a; color: #fff; }
+.btn-act.success:hover { background: #19872e; }
+.btn-act.danger  { background: #d32f2f; color: #fff; }
+.btn-act.danger:hover  { background: #b71c1c; }
+.btn-act.default { background: #eee; color: #333; }
+.btn-act.default:hover { background: #ddd; }
+.btn-act.sm { padding: 2px 8px; font-size: 11px; }
+
+/* Inputs */
+.inp-ctrl {
+    height: 30px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 0 10px;
+    font-size: 12px;
+    outline: none;
+}
+.inp-ctrl:focus { border-color: #20a53a; }
 </style>
 
-<div class="nw-full-viewport" id="nw-viewport-root">
-    <!-- Top Header -->
-    <div class="nw-header-strip">
-        <div class="title-flex">
-            <span style="font-size:32px;">🛡️</span>
+<div class="nw-app" id="nw-app-root">
+
+    <!-- Top Banner -->
+    <div class="nw-header">
+        <div class="brand">
+            <span style="font-size:26px;">🛡️</span>
             <div>
                 <h3>NorthWall WAF</h3>
-                <span class="sub">Enterprise Web Application Firewall for aaPanel — by NorthDigits</span>
+                <span>Enterprise Open-Source Web Application Firewall by NorthDigits</span>
             </div>
         </div>
         <div>
-            <span class="badge" style="background:#10b981; color:#fff; padding:6px 14px; font-size:12px; border-radius:20px;">● REAL-TIME ACTIVE</span>
+            <span class="badge" style="background:#20a53a; color:#fff; padding:5px 12px; font-size:11px; border-radius:12px;">● ACTIVE</span>
         </div>
     </div>
 
     <!-- 4 Stats -->
-    <div class="nw-metric-row">
-        <div class="nw-stat-tile danger">
-            <div class="tile-icon">🚫</div>
-            <div><div class="tile-val" id="nw-val-total">0</div><div class="tile-lbl">Total Interceptions</div></div>
+    <div class="nw-metrics">
+        <div class="nw-card danger">
+            <div class="icon">🚫</div>
+            <div><div class="val" id="st-total">0</div><div class="lbl">Total Interceptions</div></div>
         </div>
-        <div class="nw-stat-tile warning">
-            <div class="tile-icon">📅</div>
-            <div><div class="tile-val" id="nw-val-today">0</div><div class="tile-lbl">Today Interceptions</div></div>
+        <div class="nw-card warning">
+            <div class="icon">📅</div>
+            <div><div class="val" id="st-today">0</div><div class="lbl">Today Interceptions</div></div>
         </div>
-        <div class="nw-stat-tile success">
-            <div class="tile-icon">💉</div>
-            <div><div class="tile-val" id="nw-val-sqli">0</div><div class="tile-lbl">SQLi Blocks</div></div>
+        <div class="nw-card success">
+            <div class="icon">💉</div>
+            <div><div class="val" id="st-sqli">0</div><div class="lbl">SQL Injection Blocks</div></div>
         </div>
-        <div class="nw-stat-tile">
-            <div class="tile-icon">⚡</div>
-            <div><div class="tile-val" id="nw-val-xss">0</div><div class="tile-lbl">XSS Filtered</div></div>
+        <div class="nw-card">
+            <div class="icon">⚡</div>
+            <div><div class="val" id="st-xss">0</div><div class="lbl">XSS Filtered</div></div>
         </div>
     </div>
 
-    <!-- Main Container Card -->
-    <div class="nw-card-container">
-        <div class="nw-tab-strip">
-            <div class="nw-tab-link on" onclick="nwSwitchTab('rules', this)">⚙️ Defense Rules</div>
-            <div class="nw-tab-link" onclick="nwSwitchTab('sites', this)">🌐 Site Protection</div>
-            <div class="nw-tab-link" onclick="nwSwitchTab('ip', this)">📋 Whitelist / Blacklist</div>
-            <div class="nw-tab-link" onclick="nwSwitchTab('logs', this)">📄 Attack Logs</div>
-            <div class="nw-tab-link" onclick="nwSwitchTab('telegram', this)">🔔 Telegram Alert</div>
-        </div>
+    <!-- aaPanel Tabs -->
+    <div class="nw-tabs">
+        <div class="nw-tab on" onclick="nwGoTab('rules', this)">⚙️ Defense Rules</div>
+        <div class="nw-tab" onclick="nwGoTab('sites', this)">🌐 Site Protection</div>
+        <div class="nw-tab" onclick="nwGoTab('ip', this)">📋 Whitelist / Blacklist</div>
+        <div class="nw-tab" onclick="nwGoTab('logs', this)">📄 Attack Logs</div>
+        <div class="nw-tab" onclick="nwGoTab('telegram', this)">🔔 Telegram Alert</div>
+    </div>
 
-        <!-- TAB 1: RULES -->
-        <div id="nw-tab-rules" class="nw-pane-area on">
-            <div class="nw-toggle-line">
-                <div class="t-desc">
+    <!-- Tab Contents -->
+    <div class="nw-body">
+
+        <!-- TAB 1: DEFENSE RULES -->
+        <div id="tab-pane-rules" class="nw-pane on">
+            <div class="nw-row">
+                <div class="info">
                     <h5>SQL Injection Protection (SQLi)</h5>
-                    <p>Intercepts and drops UNION, SELECT, DROP, SLEEP, OUTFILE injection attacks</p>
+                    <p>Blocks SELECT, UNION, DROP, SLEEP, OUTFILE injection attacks in URL & POST</p>
                 </div>
-                <label class="nw-ui-switch">
-                    <input type="checkbox" id="chk-sqli" onchange="nwRuleAction('sqli_defense', this.checked)">
-                    <span class="nw-ui-slider"></span>
-                </label>
+                <div class="ssh-item">
+                    <input class="btswitch btswitch-ios" id="c-sqli" type="checkbox" onchange="nwRuleSet('sqli_defense', this.checked)">
+                    <label class="btswitch-btn" for="c-sqli"></label>
+                </div>
             </div>
-            <div class="nw-toggle-line">
-                <div class="t-desc">
+            <div class="nw-row">
+                <div class="info">
                     <h5>Cross-Site Scripting Protection (XSS)</h5>
-                    <p>Blocks malicious script injections, inline event handlers, and javascript: links</p>
+                    <p>Intercepts script injection, javascript: links, and inline event handlers</p>
                 </div>
-                <label class="nw-ui-switch">
-                    <input type="checkbox" id="chk-xss" onchange="nwRuleAction('xss_defense', this.checked)">
-                    <span class="nw-ui-slider"></span>
-                </label>
+                <div class="ssh-item">
+                    <input class="btswitch btswitch-ios" id="c-xss" type="checkbox" onchange="nwRuleSet('xss_defense', this.checked)">
+                    <label class="btswitch-btn" for="c-xss"></label>
+                </div>
             </div>
-            <div class="nw-toggle-line">
-                <div class="t-desc">
+            <div class="nw-row">
+                <div class="info">
                     <h5>Scanner & Bot Defense</h5>
                     <p>Blocks Shodan, Censys, Nikto, SQLMap, Acunetix, and scanner URL paths</p>
                 </div>
-                <label class="nw-ui-switch">
-                    <input type="checkbox" id="chk-scan" onchange="nwRuleAction('scan_defense', this.checked)">
-                    <span class="nw-ui-slider"></span>
-                </label>
+                <div class="ssh-item">
+                    <input class="btswitch btswitch-ios" id="c-scan" type="checkbox" onchange="nwRuleSet('scan_defense', this.checked)">
+                    <label class="btswitch-btn" for="c-scan"></label>
+                </div>
             </div>
-            <div class="nw-toggle-line">
-                <div class="t-desc">
+            <div class="nw-row">
+                <div class="info">
                     <h5>Command Injection Protection</h5>
                     <p>Blocks attempts to execute shell commands via web parameters</p>
                 </div>
-                <label class="nw-ui-switch">
-                    <input type="checkbox" id="chk-cmd" onchange="nwRuleAction('cmd_defense', this.checked)">
-                    <span class="nw-ui-slider"></span>
-                </label>
+                <div class="ssh-item">
+                    <input class="btswitch btswitch-ios" id="c-cmd" type="checkbox" onchange="nwRuleSet('cmd_defense', this.checked)">
+                    <label class="btswitch-btn" for="c-cmd"></label>
+                </div>
             </div>
-            <div class="nw-toggle-line">
-                <div class="t-desc">
+            <div class="nw-row">
+                <div class="info">
                     <h5>CC / Rate Limit Defense</h5>
                     <p>Automatically restricts excessive requests per IP</p>
                 </div>
-                <label class="nw-ui-switch">
-                    <input type="checkbox" id="chk-cc" onchange="nwRuleAction('cc_defense', this.checked)">
-                    <span class="nw-ui-slider"></span>
-                </label>
+                <div class="ssh-item">
+                    <input class="btswitch btswitch-ios" id="c-cc" type="checkbox" onchange="nwRuleSet('cc_defense', this.checked)">
+                    <label class="btswitch-btn" for="c-cc"></label>
+                </div>
+            </div>
+            <div style="margin-top:15px; padding-top:15px; border-top:1px solid #eee; display:flex; gap:10px; align-items:center;">
+                <label>Max req/min:</label>
+                <input type="number" id="c-limit" class="inp-ctrl" style="width:80px;" value="100">
+                <label style="margin-left:15px;">Ban Seconds:</label>
+                <input type="number" id="c-ban" class="inp-ctrl" style="width:90px;" value="3600">
+                <button class="btn-act success" onclick="nwSaveRate()">Save Rate Limit</button>
             </div>
         </div>
 
         <!-- TAB 2: SITES -->
-        <div id="nw-tab-sites" class="nw-pane-area">
-            <table class="nw-data-table">
+        <div id="tab-pane-sites" class="nw-pane">
+            <table class="nw-tbl">
                 <thead><tr><th>Website Domain</th><th>WAF Status</th><th style="text-align:right;">Action</th></tr></thead>
-                <tbody id="tbl-sites"><tr><td colspan="3">Loading sites...</td></tr></tbody>
+                <tbody id="tbl-site-rows"><tr><td colspan="3">Loading sites...</td></tr></tbody>
             </table>
         </div>
 
         <!-- TAB 3: IP -->
-        <div id="nw-tab-ip" class="nw-pane-area">
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+        <div id="tab-pane-ip" class="nw-pane">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
                 <div>
-                    <h4 style="margin:0 0 10px 0; font-size:14px;">✅ Whitelist IP / Subnet</h4>
-                    <div style="display:flex; gap:8px; margin-bottom:12px;">
-                        <input type="text" id="inp-white-ip" class="form-control input-sm" placeholder="e.g. 43.231.20.0/24">
-                        <button class="btn-nw-act success" onclick="nwSubmitIP('white')">+ Whitelist</button>
+                    <h5 style="margin:0 0 8px 0; font-weight:700;">✅ Whitelist IP / Subnet</h5>
+                    <div style="display:flex; gap:6px; margin-bottom:10px;">
+                        <input type="text" id="inp-w-ip" class="inp-ctrl" style="flex:1;" placeholder="e.g. 43.231.20.0/24">
+                        <button class="btn-act success" onclick="nwAddIpAction('white')">+ Add</button>
                     </div>
-                    <table class="nw-data-table">
-                        <thead><tr><th>IP / Range</th><th>Action</th></tr></thead>
-                        <tbody id="tbl-whitelist"><tr><td colspan="2">Empty</td></tr></tbody>
+                    <table class="nw-tbl">
+                        <thead><tr><th>IP / Range</th><th style="width:60px;">Action</th></tr></thead>
+                        <tbody id="tbl-w-list"><tr><td colspan="2">Empty</td></tr></tbody>
                     </table>
                 </div>
+
                 <div>
-                    <h4 style="margin:0 0 10px 0; font-size:14px;">🚫 Blacklist IP / Subnet</h4>
-                    <div style="display:flex; gap:8px; margin-bottom:12px;">
-                        <input type="text" id="inp-black-ip" class="form-control input-sm" placeholder="e.g. 1.2.3.4">
-                        <button class="btn-nw-act danger" onclick="nwSubmitIP('black')">+ Block IP</button>
+                    <h5 style="margin:0 0 8px 0; font-weight:700;">🚫 Blacklist IP / Subnet</h5>
+                    <div style="display:flex; gap:6px; margin-bottom:10px;">
+                        <input type="text" id="inp-b-ip" class="inp-ctrl" style="flex:1;" placeholder="e.g. 1.2.3.4">
+                        <button class="btn-act danger" onclick="nwAddIpAction('black')">+ Block</button>
                     </div>
-                    <table class="nw-data-table">
-                        <thead><tr><th>IP / Range</th><th>Action</th></tr></thead>
-                        <tbody id="tbl-blacklist"><tr><td colspan="2">Empty</td></tr></tbody>
+                    <table class="nw-tbl">
+                        <thead><tr><th>IP / Range</th><th style="width:60px;">Action</th></tr></thead>
+                        <tbody id="tbl-b-list"><tr><td colspan="2">Empty</td></tr></tbody>
                     </table>
                 </div>
             </div>
         </div>
 
         <!-- TAB 4: LOGS -->
-        <div id="nw-tab-logs" class="nw-pane-area">
-            <div style="display:flex; justify-content:space-between; margin-bottom:12px; align-items:center;">
-                <h4 style="margin:0; font-size:14px;">Real-time Attack Logs</h4>
-                <button class="btn-nw-act danger" onclick="nwWipeLogs()">Clear All Logs</button>
+        <div id="tab-pane-logs" class="nw-pane">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center;">
+                <strong>Real-time Attack Logs</strong>
+                <button class="btn-act danger sm" onclick="nwWipeAllLogs()">Clear All Logs</button>
             </div>
-            <table class="nw-data-table">
+            <table class="nw-tbl">
                 <thead><tr><th>Time</th><th>Attacker IP</th><th>Attack Type</th><th>Method</th><th>Target URL</th></tr></thead>
-                <tbody id="tbl-logs"><tr><td colspan="5" style="text-align:center; padding:20px;">No attack logs found 🎉</td></tr></tbody>
+                <tbody id="tbl-log-rows"><tr><td colspan="5" style="text-align:center; padding:20px;">No attack logs found 🎉</td></tr></tbody>
             </table>
         </div>
 
         <!-- TAB 5: TELEGRAM -->
-        <div id="nw-tab-telegram" class="nw-pane-area">
-            <div style="max-width:550px;">
-                <div class="nw-toggle-line" style="margin-bottom:16px;">
-                    <div class="t-desc">
+        <div id="tab-pane-telegram" class="nw-pane">
+            <div style="max-width:500px;">
+                <div class="nw-row" style="margin-bottom:12px;">
+                    <div class="info">
                         <h5>Enable Telegram Alerts</h5>
-                        <p>Sends instant notification on blocked attacks</p>
+                        <p>Sends instant notification to Telegram on blocked attacks</p>
                     </div>
-                    <label class="nw-ui-switch">
-                        <input type="checkbox" id="chk-tg" onchange="nwRuleAction('telegram_alert', this.checked)">
-                        <span class="nw-ui-slider"></span>
-                    </label>
+                    <div class="ssh-item">
+                        <input class="btswitch btswitch-ios" id="c-tg" type="checkbox" onchange="nwRuleSet('telegram_alert', this.checked)">
+                        <label class="btswitch-btn" for="c-tg"></label>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Bot Token:</label>
-                    <input type="text" id="inp-tg-token" class="form-control input-sm" placeholder="123456789:ABCdefGHIjklMNO">
+                <div style="margin-bottom:10px;">
+                    <label style="font-size:12px; font-weight:600;">Bot Token:</label>
+                    <input type="text" id="inp-token" class="inp-ctrl" style="width:100%; margin-top:3px;" placeholder="123456789:ABCdefGHIjklMNO">
                 </div>
-                <div class="form-group">
-                    <label>Chat ID:</label>
-                    <input type="text" id="inp-tg-chatid" class="form-control input-sm" placeholder="987654321">
+                <div style="margin-bottom:12px;">
+                    <label style="font-size:12px; font-weight:600;">Chat ID:</label>
+                    <input type="text" id="inp-chat" class="inp-ctrl" style="width:100%; margin-top:3px;" placeholder="987654321">
                 </div>
-                <div style="margin-top:16px;">
-                    <button class="btn-nw-act success" onclick="nwCommitTG()">Save Telegram Config</button>
-                    <button class="btn-nw-act outline" style="margin-left:8px;" onclick="nwPingTG()">Send Test Alert</button>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn-act success" onclick="nwSaveTGSettings()">Save Settings</button>
+                    <button class="btn-act default" onclick="nwSendTGTest()">Send Test Alert</button>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
 
 <script>
 // ========================================================
-// Fit exactly inside aaPanel layout (Keep sidebar visible!)
+// Official aaPanel Layer Sizing: area: ['1100px', '720px']
 // ========================================================
 (function() {
     setTimeout(function() {
         if (typeof layer !== 'undefined') {
-            var $layer = $('#nw-viewport-root').closest('.layui-layer');
-            if ($layer.length) {
-                // সাইডবারের প্রস্থ বের করা (সাধারণত 180px)
-                var sideWidth = $('.sidebar').outerWidth() || $('#sidebar').outerWidth() || 180;
-                var topHeight = $('.header').outerHeight() || 50;
-
-                // লেয়ারকে সাইডবারের ডানপাশ থেকে পুরো স্ক্রিন জুড়ে ফিট করা
-                $layer.css({
-                    'top': topHeight + 'px',
-                    'left': sideWidth + 'px',
-                    'width': ($(window).width() - sideWidth) + 'px',
-                    'height': ($(window).height() - topHeight) + 'px',
-                    'box-shadow': 'none',
-                    'border': 'none',
-                    'border-radius': '0'
-                });
-
-                // কনটেন্ট এরিয়া ফুল হাইট করা
-                $layer.find('.layui-layer-content').css({
-                    'height': '100%',
-                    'overflow-y': 'auto'
+            var $lay = $('#nw-app-root').closest('.layui-layer');
+            if ($lay.length) {
+                var w = Math.min($(window).width() - 40, 1100);
+                var h = Math.min($(window).height() - 40, 720);
+                layer.style($lay.attr('times'), {
+                    width: w + 'px',
+                    height: h + 'px',
+                    top: ($(window).height() - h) / 2 + 'px',
+                    left: ($(window).width() - w) / 2 + 'px'
                 });
             }
         }
     }, 20);
 })();
 
-function nwSwitchTab(name, el) {
-    $('.nw-tab-link').removeClass('on');
-    $('.nw-pane-area').removeClass('on');
+function nwGoTab(name, el) {
+    $('.nw-tab').removeClass('on');
+    $('.nw-pane').removeClass('on');
     $(el).addClass('on');
-    $('#nw-tab-' + name).addClass('on');
+    $('#tab-pane-' + name).addClass('on');
 
-    if (name === 'rules') nwFetchRules();
-    if (name === 'sites') nwFetchSites();
-    if (name === 'ip')    nwFetchIPs();
-    if (name === 'logs')  nwFetchLogs();
-    if (name === 'telegram') nwFetchTG();
+    if (name === 'rules') nwFetchRulesData();
+    if (name === 'sites') nwFetchSitesData();
+    if (name === 'ip')    nwFetchIPData();
+    if (name === 'logs')  nwFetchLogData();
+    if (name === 'telegram') nwFetchTGData();
 }
 
-function nwBackend(method, params, cb) {
+// Official aaPanel POST request method
+function nwPost(method, data, cb) {
     var url = '/plugin?action=a&name=northwall_waf&s=' + method;
-    if (params) {
-        for (var k in params) url += '&' + k + '=' + encodeURIComponent(params[k]);
-    }
-    $.get(url, function(res) {
+    $.post(url, data || {}, function(res) {
         if (typeof res === 'string') {
             try { res = JSON.parse(res); } catch(e){}
         }
@@ -387,138 +378,148 @@ function nwBackend(method, params, cb) {
     });
 }
 
-function nwFetchStats() {
-    nwBackend('get_status', null, function(res) {
+function nwFetchStatsData() {
+    nwPost('get_status', {}, function(res) {
         if (!res || !res.status) return;
         var s = res.data.stats || {};
-        $('#nw-val-total').text(s.total_blocked || 0);
-        $('#nw-val-today').text(s.today_blocked || 0);
-        $('#nw-val-sqli').text((s.attack_types || {})['SQL Injection'] || 0);
-        $('#nw-val-xss').text((s.attack_types || {})['XSS'] || 0);
+        $('#st-total').text(s.total_blocked || 0);
+        $('#st-today').text(s.today_blocked || 0);
+        $('#st-sqli').text((s.attack_types || {})['SQL Injection'] || 0);
+        $('#st-xss').text((s.attack_types || {})['XSS'] || 0);
     });
 }
 
-function nwFetchRules() {
-    nwBackend('get_status', null, function(res) {
+function nwFetchRulesData() {
+    nwPost('get_status', {}, function(res) {
         if (!res || !res.status) return;
         var c = res.data.config || {};
-        $('#chk-sqli').prop('checked', !!c.sqli_defense);
-        $('#chk-xss').prop('checked', !!c.xss_defense);
-        $('#chk-scan').prop('checked', !!c.scan_defense);
-        $('#chk-cmd').prop('checked', !!c.cmd_defense);
-        $('#chk-cc').prop('checked', !!c.cc_defense);
+        $('#c-sqli').prop('checked', !!c.sqli_defense);
+        $('#c-xss').prop('checked', !!c.xss_defense);
+        $('#c-scan').prop('checked', !!c.scan_defense);
+        $('#c-cmd').prop('checked', !!c.cmd_defense);
+        $('#c-cc').prop('checked', !!c.cc_defense);
+        $('#c-limit').val(c.cc_limit || 100);
+        $('#c-ban').val(c.cc_ban_seconds || 3600);
     });
 }
 
-function nwRuleAction(key, val) {
+function nwRuleSet(key, val) {
     var p = {}; p[key] = val;
-    nwBackend('update_config', p, function() {
+    nwPost('update_config', p, function() {
         if (typeof layer !== 'undefined') layer.msg('Settings updated');
     });
 }
 
-function nwFetchSites() {
-    nwBackend('get_sites', null, function(res) {
+function nwSaveRate() {
+    var lim = $('#c-limit').val();
+    var ban = $('#c-ban').val();
+    nwPost('update_config', { cc_limit: lim, cc_ban_seconds: ban }, function(r) {
+        if (typeof layer !== 'undefined') layer.msg(r.msg);
+    });
+}
+
+function nwFetchSitesData() {
+    nwPost('get_sites', {}, function(res) {
         if (!res || !res.status) return;
         var html = '';
         (res.data || []).forEach(function(s) {
             html += '<tr><td><strong>' + s.name + '</strong></td>' +
-                '<td>' + (s.waf_active ? '<span style="color:#10b981; font-weight:600;">● Protected</span>' : '<span style="color:#94a3b8;">○ Disabled</span>') + '</td>' +
+                '<td>' + (s.waf_active ? '<span style="color:#20a53a; font-weight:600;">● Protected</span>' : '<span style="color:#999;">○ Disabled</span>') + '</td>' +
                 '<td style="text-align:right;">' + (s.waf_active 
-                    ? '<button class="btn-nw-act danger" onclick="nwToggleSiteItem(\'' + s.name + '\', false)">Remove WAF</button>'
-                    : '<button class="btn-nw-act success" onclick="nwToggleSiteItem(\'' + s.name + '\', true)">Enable WAF</button>') + '</td></tr>';
+                    ? '<button class="btn-act danger sm" onclick="nwSiteChange(\'' + s.name + '\', false)">Remove WAF</button>'
+                    : '<button class="btn-act success sm" onclick="nwSiteChange(\'' + s.name + '\', true)">Enable WAF</button>') + '</td></tr>';
         });
-        $('#tbl-sites').html(html || '<tr><td colspan="3">No sites found</td></tr>');
+        $('#tbl-site-rows').html(html || '<tr><td colspan="3">No sites found</td></tr>');
     });
 }
 
-function nwToggleSiteItem(site, enable) {
-    nwBackend(enable ? 'install_to_site' : 'remove_from_site', { site: site }, function(r) {
+function nwSiteChange(site, enable) {
+    nwPost(enable ? 'install_to_site' : 'remove_from_site', { site: site }, function(r) {
         if (typeof layer !== 'undefined') layer.msg(r.msg);
-        nwFetchSites();
+        nwFetchSitesData();
     });
 }
 
-function nwFetchIPs() {
-    nwBackend('get_status', null, function(res) {
+function nwFetchIPData() {
+    nwPost('get_status', {}, function(res) {
         if (!res || !res.status) return;
         var c = res.data.config || {};
         var w = '', b = '';
         (c.whitelist_ips || []).forEach(function(ip) {
-            w += '<tr><td><code>' + ip + '</code></td><td><button class="btn-nw-act danger" style="padding:2px 8px;font-size:11px;" onclick="nwDeleteIP(\'white\',\'' + ip + '\')">Remove</button></td></tr>';
+            w += '<tr><td><code>' + ip + '</code></td><td><button class="btn-act danger sm" onclick="nwDelIpAction(\'white\',\'' + ip + '\')">Remove</button></td></tr>';
         });
         (c.blacklist_ips || []).forEach(function(ip) {
-            b += '<tr><td><code>' + ip + '</code></td><td><button class="btn-nw-act danger" style="padding:2px 8px;font-size:11px;" onclick="nwDeleteIP(\'black\',\'' + ip + '\')">Remove</button></td></tr>';
+            b += '<tr><td><code>' + ip + '</code></td><td><button class="btn-act danger sm" onclick="nwDelIpAction(\'black\',\'' + ip + '\')">Remove</button></td></tr>';
         });
-        $('#tbl-whitelist').html(w || '<tr><td colspan="2">Empty</td></tr>');
-        $('#tbl-blacklist').html(b || '<tr><td colspan="2">Empty</td></tr>');
+        $('#tbl-w-list').html(w || '<tr><td colspan="2">Empty</td></tr>');
+        $('#tbl-b-list').html(b || '<tr><td colspan="2">Empty</td></tr>');
     });
 }
 
-function nwSubmitIP(type) {
-    var val = type === 'white' ? $('#inp-white-ip').val().trim() : $('#inp-black-ip').val().trim();
+function nwAddIpAction(type) {
+    var val = type === 'white' ? $('#inp-w-ip').val().trim() : $('#inp-b-ip').val().trim();
     if (!val) return;
-    nwBackend(type === 'white' ? 'add_whitelist' : 'add_blacklist', { ip: val }, function(r) {
+    nwPost(type === 'white' ? 'add_whitelist' : 'add_blacklist', { ip: val }, function(r) {
         if (typeof layer !== 'undefined') layer.msg(r.msg);
-        if (type === 'white') $('#inp-white-ip').val(''); else $('#inp-black-ip').val('');
-        nwFetchIPs();
+        if (type === 'white') $('#inp-w-ip').val(''); else $('#inp-b-ip').val('');
+        nwFetchIPData();
     });
 }
 
-function nwDeleteIP(type, ip) {
-    nwBackend(type === 'white' ? 'remove_whitelist' : 'remove_blacklist', { ip: ip }, function() {
-        nwFetchIPs();
+function nwDelIpAction(type, ip) {
+    nwPost(type === 'white' ? 'remove_whitelist' : 'remove_blacklist', { ip: ip }, function() {
+        nwFetchIPData();
     });
 }
 
-function nwFetchLogs() {
-    nwBackend('get_logs', { page: 1, per_page: 30 }, function(res) {
+function nwFetchLogData() {
+    nwPost('get_logs', { page: 1, per_page: 30 }, function(res) {
         if (!res || !res.status || !res.data || res.data.length === 0) {
-            $('#tbl-logs').html('<tr><td colspan="5" style="text-align:center; padding:20px;">No attack logs found 🎉</td></tr>');
+            $('#tbl-log-rows').html('<tr><td colspan="5" style="text-align:center; padding:20px;">No attack logs found 🎉</td></tr>');
             return;
         }
         var html = '';
         res.data.forEach(function(l) {
             html += '<tr><td>' + (l.time || '-') + '</td><td><code>' + (l.ip || '-') + '</code></td>' +
-                '<td><span style="color:#ef4444; font-weight:600;">' + (l.attack || '-') + '</span></td>' +
+                '<td><span style="color:#d32f2f; font-weight:600;">' + (l.attack || '-') + '</span></td>' +
                 '<td>' + (l.method || 'GET') + '</td><td style="max-width:240px;overflow:hidden;text-overflow:ellipsis;">' + (l.url || '-') + '</td></tr>';
         });
-        $('#tbl-logs').html(html);
+        $('#tbl-log-rows').html(html);
     });
 }
 
-function nwWipeLogs() {
-    nwBackend('clear_logs', null, function(r) {
+function nwWipeAllLogs() {
+    nwPost('clear_logs', {}, function(r) {
         if (typeof layer !== 'undefined') layer.msg(r.msg);
-        nwFetchLogs();
+        nwFetchLogData();
     });
 }
 
-function nwFetchTG() {
-    nwBackend('get_status', null, function(res) {
+function nwFetchTGData() {
+    nwPost('get_status', {}, function(res) {
         if (!res || !res.status) return;
         var c = res.data.config || {};
-        $('#chk-tg').prop('checked', !!c.telegram_alert);
-        $('#inp-tg-token').val(c.telegram_token || '');
-        $('#inp-tg-chatid').val(c.telegram_chat_id || '');
+        $('#c-tg').prop('checked', !!c.telegram_alert);
+        $('#inp-token').val(c.telegram_token || '');
+        $('#inp-chat').val(c.telegram_chat_id || '');
     });
 }
 
-function nwCommitTG() {
-    var t = $('#inp-tg-token').val().trim();
-    var id = $('#inp-tg-chatid').val().trim();
-    nwBackend('update_config', { telegram_token: t, telegram_chat_id: id, telegram_alert: $('#chk-tg').is(':checked') }, function(r) {
+function nwSaveTGSettings() {
+    var t = $('#inp-token').val().trim();
+    var id = $('#inp-chat').val().trim();
+    nwPost('update_config', { telegram_token: t, telegram_chat_id: id, telegram_alert: $('#c-tg').is(':checked') }, function(r) {
         if (typeof layer !== 'undefined') layer.msg(r.status ? 'Telegram saved' : r.msg);
     });
 }
 
-function nwPingTG() {
-    nwBackend('test_telegram', null, function(r) {
+function nwSendTGTest() {
+    nwPost('test_telegram', {}, function(r) {
         if (typeof layer !== 'undefined') layer.msg(r.msg);
     });
 }
 
-// Auto init
-nwFetchStats();
-nwFetchRules();
+// Init
+nwFetchStatsData();
+nwFetchRulesData();
 </script>

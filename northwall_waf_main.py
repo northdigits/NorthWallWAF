@@ -1,6 +1,6 @@
 # coding: utf-8
 """
-NorthWall WAF - aaPanel Plugin Backend Controller
+NorthWall WAF - aaPanel Official Plugin Backend Controller
 Author: NorthDigits
 Version: 1.0.0
 """
@@ -10,10 +10,15 @@ import sys
 import json
 import time
 import re
-import subprocess
 import threading
-import hashlib
-from datetime import datetime, timedelta
+from datetime import datetime
+
+# aaPanel official public library
+sys.path.insert(0, '/www/server/panel/class')
+try:
+    import public
+except ImportError:
+    public = None
 
 try:
     import requests
@@ -27,19 +32,16 @@ class northwall_waf_main:
     __rules_path    = "/www/server/panel/plugin/northwall_waf/core/rules/filter_rules.json"
     __log_path      = "/www/server/panel/plugin/northwall_waf/logs/blocked.log"
     __error_log     = "/www/server/panel/plugin/northwall_waf/logs/error.log"
-    __nginx_conf    = "/www/server/nginx/conf/nginx.conf"
     __lua_waf_path  = "/www/server/panel/plugin/northwall_waf/core/lua/waf.lua"
 
-    # =====================================================
-    # INIT
-    # =====================================================
     def __init__(self):
         for path in [
             os.path.join(self.__plugin_path, "logs"),
             os.path.join(self.__plugin_path, "core/rules"),
             os.path.join(self.__plugin_path, "core/lua"),
         ]:
-            os.makedirs(path, exist_ok=True)
+            if not os.path.exists(path):
+                os.makedirs(path, exist_ok=True)
 
         if not os.path.exists(self.__config_path):
             self._save_config(self._default_config())
@@ -53,23 +55,23 @@ class northwall_waf_main:
             "scan_defense":     True,
             "cmd_defense":      True,
             "file_inc_defense": True,
-            "cc_limit":         100,         # রিকোয়েস্ট সংখ্যা per minute
-            "cc_ban_seconds":   3600,        # কত সেকেন্ড ব্যান
+            "cc_limit":         100,
+            "cc_ban_seconds":   3600,
             "telegram_alert":   False,
             "telegram_token":   "",
             "telegram_chat_id": "",
-            "whitelist_ips":    ["127.0.0.1"],
+            "whitelist_ips":    ["127.0.0.1", "43.231.20.0/24"],
             "blacklist_ips":    [],
-            "geo_block":        [],          # block করা দেশের কোড তালিকা
-            "installed_sites":  [],          # যে সাইটগুলোতে WAF ইনজেক্ট করা আছে
+            "installed_sites":  [],
             "version":          "1.0.0"
         }
 
-    # =====================================================
-    # CONFIG HELPERS
-    # =====================================================
     def _get_config(self):
         try:
+            if public and hasattr(public, 'ReadFile'):
+                content = public.ReadFile(self.__config_path)
+                if content:
+                    return json.loads(content)
             with open(self.__config_path, "r", encoding="utf-8") as f:
                 return json.load(f)
         except Exception:
@@ -77,38 +79,32 @@ class northwall_waf_main:
 
     def _save_config(self, conf):
         try:
+            payload = json.dumps(conf, indent=4, ensure_ascii=False)
+            if public and hasattr(public, 'WriteFile'):
+                public.WriteFile(self.__config_path, payload)
+                return True
             with open(self.__config_path, "w", encoding="utf-8") as f:
-                json.dump(conf, f, indent=4, ensure_ascii=False)
+                f.write(payload)
             return True
-        except Exception as e:
-            self._write_error(str(e))
+        except Exception:
             return False
 
-    def _write_error(self, msg):
-        try:
-            with open(self.__error_log, "a", encoding="utf-8") as f:
-                f.write(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {msg}\n")
-        except Exception:
-            pass
-
     # =====================================================
-    # API: RENDER MAIN UI (aaPanel যখন প্লাগইনে ক্লিক করে)
+    # OFFICIAL INDEX RENDERER (Called by aaPanel)
     # =====================================================
-    def index(self, get):
-        """aaPanel প্লাগইন ইন্টারফেস রেন্ডার করার প্রধান মেথড"""
+    def index(self, args):
         html_file = os.path.join(self.__plugin_path, "index.html")
         if os.path.exists(html_file):
-            try:
-                with open(html_file, "r", encoding="utf-8") as f:
-                    return f.read()
-            except Exception as e:
-                return f"<h3>Error reading index.html: {e}</h3>"
+            if public and hasattr(public, 'ReadFile'):
+                return public.ReadFile(html_file)
+            with open(html_file, "r", encoding="utf-8") as f:
+                return f.read()
         return "<h3>NorthWall WAF index.html not found!</h3>"
 
     # =====================================================
-    # API: GET STATUS (aaPanel UI তে সব ডাটা দেখানোর জন্য)
+    # API: GET STATUS (POST)
     # =====================================================
-    def get_status(self, get):
+    def get_status(self, args):
         conf = self._get_config()
         stats = self._get_stats()
         return {
@@ -120,9 +116,9 @@ class northwall_waf_main:
         }
 
     # =====================================================
-    # API: UPDATE CONFIG (UI থেকে সেটিংস পরিবর্তন)
+    # API: UPDATE CONFIG (POST)
     # =====================================================
-    def update_config(self, get):
+    def update_config(self, args):
         conf = self._get_config()
         fields_bool = [
             "status", "cc_defense", "sqli_defense", "xss_defense",
@@ -132,133 +128,77 @@ class northwall_waf_main:
         fields_int = ["cc_limit", "cc_ban_seconds"]
 
         for f in fields_bool:
-            if hasattr(get, f):
-                conf[f] = getattr(get, f) in [True, "true", "True", 1, "1"]
+            if hasattr(args, f):
+                conf[f] = getattr(args, f) in [True, "true", "True", 1, "1"]
         for f in fields_str:
-            if hasattr(get, f):
-                conf[f] = str(getattr(get, f)).strip()
+            if hasattr(args, f):
+                conf[f] = str(getattr(args, f)).strip()
         for f in fields_int:
-            if hasattr(get, f):
+            if hasattr(args, f):
                 try:
-                    conf[f] = int(getattr(get, f))
+                    conf[f] = int(getattr(args, f))
                 except Exception:
                     pass
 
         if self._save_config(conf):
-            return {"status": True, "msg": "NorthWall WAF configuration saved!"}
+            return {"status": True, "msg": "NorthWall WAF settings saved successfully!"}
         return {"status": False, "msg": "Failed to save configuration"}
 
     # =====================================================
-    # API: IP WHITELIST / BLACKLIST MANAGEMENT
+    # API: WHITELIST & BLACKLIST (POST)
     # =====================================================
-    def add_whitelist(self, get):
-        ip = str(get.ip).strip()
-        if not self._validate_ip_or_cidr(ip):
-            return {"status": False, "msg": "Invalid IP address or CIDR format"}
+    def add_whitelist(self, args):
+        ip = str(getattr(args, "ip", "")).strip()
+        if not ip: return {"status": False, "msg": "Please provide an IP address"}
         conf = self._get_config()
         if ip not in conf["whitelist_ips"]:
             conf["whitelist_ips"].append(ip)
             self._save_config(conf)
         return {"status": True, "msg": f"{ip} added to whitelist"}
 
-    def remove_whitelist(self, get):
-        ip = str(get.ip).strip()
+    def remove_whitelist(self, args):
+        ip = str(getattr(args, "ip", "")).strip()
         conf = self._get_config()
         if ip in conf["whitelist_ips"]:
             conf["whitelist_ips"].remove(ip)
             self._save_config(conf)
         return {"status": True, "msg": f"{ip} removed from whitelist"}
 
-    def add_blacklist(self, get):
-        ip = str(get.ip).strip()
-        if not self._validate_ip_or_cidr(ip):
-            return {"status": False, "msg": "Invalid IP address or CIDR format"}
+    def add_blacklist(self, args):
+        ip = str(getattr(args, "ip", "")).strip()
+        if not ip: return {"status": False, "msg": "Please provide an IP address"}
         conf = self._get_config()
         if ip not in conf["blacklist_ips"]:
             conf["blacklist_ips"].append(ip)
             self._save_config(conf)
-        return {"status": True, "msg": f"{ip} added to blacklist"}
+        return {"status": True, "msg": f"{ip} blocked and added to blacklist"}
 
-    def remove_blacklist(self, get):
-        ip = str(get.ip).strip()
+    def remove_blacklist(self, args):
+        ip = str(getattr(args, "ip", "")).strip()
         conf = self._get_config()
         if ip in conf["blacklist_ips"]:
             conf["blacklist_ips"].remove(ip)
             self._save_config(conf)
         return {"status": True, "msg": f"{ip} removed from blacklist"}
 
-    def _validate_ip_or_cidr(self, ip):
-        """Validate IP address or CIDR notation - octets must be 0-255"""
-        # IPv4 or IPv4 CIDR
-        ipv4_pattern = r"^(\d{1,3}\.){3}\d{1,3}(/\d{1,2})?$"
-        # IPv6 placeholder (basic)
-        ipv6_pattern = r"^([0-9a-fA-F]*:)+[0-9a-fA-F:]+$"
-        
-        if re.match(ipv6_pattern, ip):
-            return True  # Basic IPv6 acceptance - can be enhanced later
-            
-        if not re.match(ipv4_pattern, ip):
-            return False
-        
-        # Validate octets are 0-255 for IPv4
-        parts = ip.split("/")[0].split(".")
-        if len(parts) != 4:
-            return False
-        
-        for octet in parts:
-            try:
-                val = int(octet)
-                if val < 0 or val > 255:
-                    return False
-            except ValueError:
-                return False
-        
-        # Validate CIDR prefix length (0-32 for IPv4)
-        if "/" in ip:
-            prefix = int(ip.split("/")[1])
-            if prefix < 0 or prefix > 32:
-                return False
-        
-        return True
-
     # =====================================================
-    # API: GET BLOCKED LOGS (aaPanel UI Log ট্যাবের জন্য)
+    # API: GET LOGS (POST)
     # =====================================================
-    def get_logs(self, get):
+    def get_logs(self, args):
         if not os.path.exists(self.__log_path):
-            return {"status": True, "data": [], "total": 0}
+            return {"status": True, "data": []}
         try:
-            page     = int(getattr(get, "page", 1))
-            per_page = int(getattr(get, "per_page", 20))
-            search   = str(getattr(get, "search", "")).strip().lower()
-
             with open(self.__log_path, "r", encoding="utf-8") as f:
                 lines = f.readlines()
-
-            entries = []
-            for line in reversed(lines):
-                try:
-                    entry = json.loads(line.strip())
-                    if search and search not in json.dumps(entry).lower():
-                        continue
-                    entries.append(entry)
-                except Exception:
-                    continue
-
-            total  = len(entries)
-            start  = (page - 1) * per_page
-            end    = start + per_page
-            return {
-                "status": True,
-                "data": entries[start:end],
-                "total": total,
-                "page": page,
-                "per_page": per_page
-            }
+            logs = []
+            for l in reversed(lines[-50:]):
+                try: logs.append(json.loads(l.strip()))
+                except Exception: pass
+            return {"status": True, "data": logs}
         except Exception as e:
             return {"status": False, "msg": str(e)}
 
-    def clear_logs(self, get):
+    def clear_logs(self, args):
         try:
             with open(self.__log_path, "w", encoding="utf-8") as f:
                 f.write("")
@@ -267,190 +207,130 @@ class northwall_waf_main:
             return {"status": False, "msg": str(e)}
 
     # =====================================================
-    # API: GET STATISTICS (Overview ড্যাশবোর্ডের জন্য)
+    # API: SITE PROTECTION INJECTION (POST)
     # =====================================================
-    def _get_stats(self):
-        stats = {
-            "total_blocked": 0,
-            "today_blocked": 0,
-            "attack_types":  {},
-            "top_ips":       {},
-            "top_countries": {},
-            "hourly":        [0] * 24
-        }
-        if not os.path.exists(self.__log_path):
-            return stats
-
-        today_str = datetime.now().strftime("%Y-%m-%d")
-        try:
-            with open(self.__log_path, "r", encoding="utf-8") as f:
-                lines = f.readlines()
-
-            for line in lines:
-                try:
-                    entry = json.loads(line.strip())
-                    stats["total_blocked"] += 1
-
-                    if entry.get("time", "").startswith(today_str):
-                        stats["today_blocked"] += 1
-                        hour = int(entry.get("time", "00:00:00 00")[-8:-6])
-                        if 0 <= hour < 24:
-                            stats["hourly"][hour] += 1
-
-                    atype = entry.get("attack", "Unknown")
-                    stats["attack_types"][atype] = stats["attack_types"].get(atype, 0) + 1
-
-                    ip = entry.get("ip", "")
-                    if ip:
-                        stats["top_ips"][ip] = stats["top_ips"].get(ip, 0) + 1
-                except Exception:
-                    continue
-
-            # Sort top IPs (top 10)
-            stats["top_ips"] = dict(
-                sorted(stats["top_ips"].items(), key=lambda x: x[1], reverse=True)[:10]
-            )
-        except Exception as e:
-            self._write_error(f"Stats error: {e}")
-
-        return stats
-
-    # =====================================================
-    # API: TELEGRAM ALERT
-    # =====================================================
-    def send_telegram_alert(self, ip, attack_type, url, method="GET"):
+    def get_sites(self, args):
+        vhost_path = "/www/server/panel/vhost/nginx/"
+        sites = []
         conf = self._get_config()
-        if not conf.get("telegram_alert"):
-            return False
-        if not conf.get("telegram_token") or not conf.get("telegram_chat_id"):
-            return False
-        if requests is None:
-            return False
+        if os.path.exists(vhost_path):
+            for f in os.listdir(vhost_path):
+                if f.endswith(".conf"):
+                    name = f.replace(".conf", "")
+                    sites.append({
+                        "name": name,
+                        "waf_active": name in conf.get("installed_sites", [])
+                    })
+        return {"status": True, "data": sites}
 
-        message = (
-            f"🛡️ *NorthWall WAF Alert*\n"
-            f"━━━━━━━━━━━━━━━━━\n"
-            f"⚠️ *Attack:* `{attack_type}`\n"
-            f"🌐 *Attacker IP:* `{ip}`\n"
-            f"📡 *Method:* `{method}`\n"
-            f"🎯 *URL:* `{url}`\n"
-            f"⏰ *Time:* `{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}`\n"
-            f"━━━━━━━━━━━━━━━━━\n"
-            f"🔒 _NorthWall WAF by NorthDigits_"
-        )
-
-        def send():
-            try:
-                api_url = f"https://api.telegram.org/bot{conf['telegram_token']}/sendMessage"
-                requests.post(api_url, data={
-                    "chat_id": conf["telegram_chat_id"],
-                    "text": message,
-                    "parse_mode": "Markdown"
-                }, timeout=5)
-            except Exception as e:
-                self._write_error(f"Telegram alert failed: {e}")
-
-        threading.Thread(target=send, daemon=True).start()
-        return True
-
-    def test_telegram(self, get):
-        """UI থেকে টেলিগ্রাম টেস্ট বাটন চাপলে এই ফাংশন কল হবে"""
-        conf = self._get_config()
-        if not conf.get("telegram_token") or not conf.get("telegram_chat_id"):
-            return {"status": False, "msg": "Please set Telegram Bot Token and Chat ID first"}
-        
-        result = self.send_telegram_alert(
-            ip="1.2.3.4",
-            attack_type="TEST - WAF Alert",  # Changed from hardcoded SQL Injection
-            url="/test?id=1' OR '1'='1",
-            method="GET"
-        )
-        if result:
-            return {"status": True, "msg": "✅ Test alert sent! Check your Telegram."}
-        return {"status": False, "msg": "Failed to send test alert. Check token/chat_id."}
-
-    # =====================================================
-    # API: INSTALL WAF INTO A SPECIFIC NGINX SITE
-    # =====================================================
-    def install_to_site(self, get):
-        site = str(get.site).strip()
+    def install_to_site(self, args):
+        site = str(getattr(args, "site", "")).strip()
         site_conf = f"/www/server/panel/vhost/nginx/{site}.conf"
         if not os.path.exists(site_conf):
-            return {"status": False, "msg": f"Site config not found: {site}.conf"}
+            return {"status": False, "msg": f"Config not found for site: {site}"}
 
-        inject_line = f"    access_by_lua_file {self.__lua_waf_path};\n"
-
+        inject = f"    access_by_lua_file {self.__lua_waf_path};\n"
         with open(site_conf, "r", encoding="utf-8") as f:
-            content = f.read()
+            c = f.read()
 
-        if inject_line.strip() in content:
-            return {"status": True, "msg": f"NorthWall WAF is already active on {site}"}
+        if inject.strip() not in c:
+            new_c = c.replace("server {", f"server {{\n{inject}", 1)
+            with open(site_conf, "w", encoding="utf-8") as f:
+                f.write(new_c)
 
-        # 'server {' এর পরে ইনজেক্ট করা
-        new_content = content.replace("server {", f"server {{\n{inject_line}", 1)
-        with open(site_conf, "w", encoding="utf-8") as f:
-            f.write(new_content)
-
-        # Additional server blocks handling - inject after second server { if present
-        if new_content.count("server {") > 1:
-            second_server_idx = new_content.find("server {", new_content.find("server {") + 1)
-            if second_server_idx != -1:
-                after_second = new_content[second_server_idx:]
-                after_second = after_second.replace("server {", f"server {{\n{inject_line}", 1)
-                new_content = new_content[:second_server_idx] + after_second
-                with open(site_conf, "w", encoding="utf-8") as f:
-                    f.write(new_content)
-
-        # Nginx reload
-        os.system("nginx -s reload")
+        if public and hasattr(public, 'ExecShell'):
+            public.ExecShell("nginx -s reload")
+        else:
+            os.system("nginx -s reload")
 
         conf = self._get_config()
         if site not in conf["installed_sites"]:
             conf["installed_sites"].append(site)
             self._save_config(conf)
 
-        return {"status": True, "msg": f"✅ NorthWall WAF activated on {site}"}
+        return {"status": True, "msg": f"NorthWall WAF activated on {site}!"}
 
-    def remove_from_site(self, get):
-        site = str(get.site).strip()
+    def remove_from_site(self, args):
+        site = str(getattr(args, "site", "")).strip()
         site_conf = f"/www/server/panel/vhost/nginx/{site}.conf"
         if not os.path.exists(site_conf):
-            return {"status": False, "msg": f"Site config not found: {site}.conf"}
+            return {"status": False, "msg": f"Config not found for site: {site}"}
 
-        inject_line = f"    access_by_lua_file {self.__lua_waf_path};\n"
-
+        inject = f"    access_by_lua_file {self.__lua_waf_path};\n"
         with open(site_conf, "r", encoding="utf-8") as f:
-            content = f.read()
+            c = f.read()
 
-        new_content = content.replace(inject_line, "")
+        new_c = c.replace(inject, "")
         with open(site_conf, "w", encoding="utf-8") as f:
-            f.write(new_content)
+            f.write(new_c)
 
-        os.system("nginx -s reload")
+        if public and hasattr(public, 'ExecShell'):
+            public.ExecShell("nginx -s reload")
+        else:
+            os.system("nginx -s reload")
 
         conf = self._get_config()
         if site in conf["installed_sites"]:
             conf["installed_sites"].remove(site)
             self._save_config(conf)
 
-        return {"status": True, "msg": f"NorthWall WAF removed from {site}"}
+        return {"status": True, "msg": f"NorthWall WAF disabled on {site}"}
 
     # =====================================================
-    # API: GET ALL NGINX SITES LIST
+    # API: TELEGRAM ALERT (POST)
     # =====================================================
-    def get_sites(self, get):
-        vhost_path = "/www/server/panel/vhost/nginx/"
-        sites = []
+    def test_telegram(self, args):
         conf = self._get_config()
-        try:
-            for f in os.listdir(vhost_path):
-                if f.endswith(".conf"):
-                    site_name = f.replace(".conf", "")
-                    sites.append({
-                        "name": site_name,
-                        "waf_active": site_name in conf.get("installed_sites", [])
-                    })
-        except Exception as e:
-            return {"status": False, "msg": str(e)}
-        return {"status": True, "data": sites}
+        if not conf.get("telegram_token") or not conf.get("telegram_chat_id"):
+            return {"status": False, "msg": "Please configure Telegram Bot Token and Chat ID first"}
 
+        if requests is None:
+            return {"status": False, "msg": "Python 'requests' module not installed"}
+
+        message = (
+            "🛡️ *NorthWall WAF Test Alert*\n"
+            "━━━━━━━━━━━━━━━━━\n"
+            "✅ Telegram notifications are working perfectly!\n"
+            f"⏰ Time: `{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}`\n"
+            "━━━━━━━━━━━━━━━━━\n"
+            "🔒 _NorthDigits Security_"
+        )
+        try:
+            api_url = f"https://api.telegram.org/bot{conf['telegram_token']}/sendMessage"
+            requests.post(api_url, data={
+                "chat_id": conf["telegram_chat_id"],
+                "text": message,
+                "parse_mode": "Markdown"
+            }, timeout=5)
+            return {"status": True, "msg": "Test alert sent to your Telegram!"}
+        except Exception as e:
+            return {"status": False, "msg": f"Telegram error: {e}"}
+
+    # Internal stats calculator
+    def _get_stats(self):
+        stats = {
+            "total_blocked": 0,
+            "today_blocked": 0,
+            "attack_types":  {},
+            "top_ips":       {}
+        }
+        if not os.path.exists(self.__log_path):
+            return stats
+
+        today = datetime.now().strftime("%Y-%m-%d")
+        try:
+            with open(self.__log_path, "r", encoding="utf-8") as f:
+                lines = f.readlines()
+            for l in lines:
+                try:
+                    e = json.loads(l.strip())
+                    stats["total_blocked"] += 1
+                    if e.get("time", "").startswith(today):
+                        stats["today_blocked"] += 1
+                    at = e.get("attack", "Unknown")
+                    stats["attack_types"][at] = stats["attack_types"].get(at, 0) + 1
+                except Exception:
+                    pass
+        except Exception:
+            pass
+        return stats
