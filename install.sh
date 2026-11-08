@@ -177,6 +177,7 @@ Update() {
     fi
 
     # Preserve config.json before update
+    git config --global --add safe.directory "$PLUGIN_PATH" 2>/dev/null
     CONFIG_BACKUP=""
     if [ -f "$PLUGIN_PATH/config.json" ]; then
         CONFIG_BACKUP=$(cat "$PLUGIN_PATH/config.json")
