@@ -1,11 +1,15 @@
 {
     "title": "NorthWall WAF",
     "name": "northwall_waf",
-    "ps": "Enterprise-grade Open-Source Web Application Firewall for aaPanel. Blocks SQLi, XSS, Scanners, CC Attacks with real-time Telegram alerts.",
+    "ps": "Enterprise-grade Open-Source Web Application Firewall for aaPanel.",
     "version": "1.0.0",
     "author": "NorthDigits",
     "home": "https://northdigits.com",
     "type": "Security",
-    "icon": "icon-shield"
+    "icon": "icon-shield",
+    "display": 1,
+    "setup": true,
+    "status": true,
+    "price": 0,
+    "index": "northwall_waf"
 }
-

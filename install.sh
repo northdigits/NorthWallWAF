@@ -239,12 +239,17 @@ setup_nginx_lua() {
 # RELOAD AAPANEL
 # ============================================================
 reload_aapanel() {
+    # Clear aaPanel plugin caches so the new plugin is scanned immediately
+    rm -f /www/server/panel/data/plugin.json 2>/dev/null
+    rm -f /www/server/panel/data/plugin_bin.json 2>/dev/null
     if [ -f /etc/init.d/bt ]; then
         /etc/init.d/bt reload > /dev/null 2>&1
-        log "aaPanel reloaded."
+        /etc/init.d/bt restart > /dev/null 2>&1
+        log "aaPanel reloaded & cache refreshed."
     elif command -v bt &>/dev/null; then
         bt reload > /dev/null 2>&1
-        log "aaPanel reloaded."
+        bt restart > /dev/null 2>&1
+        log "aaPanel reloaded & cache refreshed."
     else
         warn "Could not reload aaPanel automatically. Please restart it manually."
     fi
