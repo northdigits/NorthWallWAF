@@ -1,15 +1,11 @@
 {
     "title": "NorthWall WAF",
     "name": "northwall_waf",
-    "ps": "Enterprise-grade Open-Source Web Application Firewall for aaPanel.",
-    "version": "1.0.0",
+    "ps": "Enterprise Open-Source Web Application Firewall for aaPanel",
+    "versions": "1.0.0",
+    "checks": "/www/server/panel/plugin/northwall_waf",
     "author": "NorthDigits",
     "home": "https://northdigits.com",
-    "type": "Security",
-    "icon": "icon-shield",
-    "display": 1,
-    "setup": true,
-    "status": true,
-    "price": 0,
-    "index": "northwall_waf"
+    "date": "2026-11-08",
+    "display": 1
 }

@@ -137,17 +137,21 @@ Install() {
     touch "$PLUGIN_PATH/logs/error.log"
     log "Log directories created."
 
-    # 4. Set permissions
-    chown -R www:www "$PLUGIN_PATH" 2>/dev/null || \
-    chown -R nobody:nobody "$PLUGIN_PATH" 2>/dev/null || \
-    chown -R root:root "$PLUGIN_PATH"
+    # 4. Copy icon if not present
+    if [ ! -f "$PLUGIN_PATH/icon.png" ]; then
+        if [ -f "/www/server/panel/plugin/dns_manager/icon.png" ]; then
+            cp "/www/server/panel/plugin/dns_manager/icon.png" "$PLUGIN_PATH/icon.png"
+        fi
+    fi
 
+    # 5. Set correct permissions
+    chown -R root:root "$PLUGIN_PATH"
+    chmod 755 /www/server/panel/plugin
     chmod -R 755 "$PLUGIN_PATH"
     chmod 644 "$PLUGIN_PATH"/*.py 2>/dev/null
     chmod 644 "$PLUGIN_PATH"/*.json 2>/dev/null
     chmod 644 "$PLUGIN_PATH"/*.html 2>/dev/null
-    chmod 600 "$PLUGIN_PATH/logs/"* 2>/dev/null
-    log "Permissions set."
+    log "Permissions & icon configured."
 
     # 5. Inject Lua WAF into Nginx (if Lua is available)
     setup_nginx_lua
