@@ -190,7 +190,7 @@ try:
 except Exception:
     pass
 
-# 2. Sidebar Menu registration
+# 2. Sidebar Menu registration with aaPanel exact schema
 menu_file = '/www/server/panel/config/menu.json'
 if not os.path.exists(menu_file):
     menu_file = '/www/server/panel/BTPanel/static/js/menu.json'
@@ -199,19 +199,23 @@ if os.path.exists(menu_file):
     try:
         with open(menu_file, 'r', encoding='utf-8') as f:
             menus = json.load(f)
-        if not any(m.get('name') == plugin_name for m in menus):
-            menus.append({
-                "title": "NorthWall WAF",
-                "name": plugin_name,
-                "icon": "glyphicon-shield",
-                "url": f"/plugin?action=a&name={plugin_name}",
-                "sort": 6,
-                "type": 1
-            })
-            with open(menu_file, 'w', encoding='utf-8') as f:
-                json.dump(menus, f, indent=4, ensure_ascii=False)
-    except Exception:
-        pass
+        
+        # Clean any invalid entries
+        menus = [m for m in menus if m.get('id') != 'memuNorthWall' and m.get('title') != 'NorthWall WAF']
+        
+        # Add NorthWall WAF menu item
+        menus.append({
+            "title": "NorthWall WAF",
+            "href": f"/plugin?action=a&name={plugin_name}",
+            "class": "menu_safe",
+            "id": "memuNorthWall",
+            "sort": 5
+        })
+        with open(menu_file, 'w', encoding='utf-8') as f:
+            json.dump(menus, f, indent=4, ensure_ascii=False)
+        print("Sidebar menu registered successfully.")
+    except Exception as e:
+        print(f"Menu error: {e}")
 PYEOF
 
     # 7. Reload aaPanel
