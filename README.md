@@ -106,10 +106,13 @@ northwall_waf/
 If you prefer to upload files manually via SCP:
 
 ```bash
-# From your Windows machine (PowerShell)
-scp -r "E:\laragon\www\aapanel\plugins\NorthWallWAF" root@YOUR_SERVER_IP:/www/server/panel/plugin/northwall_waf
+# 1. Clone the repository on your local machine
+git clone https://github.com/northdigits/NorthWallWAF.git
 
-# Then on the server
+# 2. Upload to your server via SCP (run from your local machine)
+scp -r NorthWallWAF root@YOUR_SERVER_IP:/www/server/panel/plugin/northwall_waf
+
+# 3. Then SSH into the server and run
 chmod -R 755 /www/server/panel/plugin/northwall_waf
 bash /www/server/panel/plugin/northwall_waf/install.sh install
 ```
