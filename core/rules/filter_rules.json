@@ -1,0 +1,52 @@
+{
+    "sqli": [
+        "(?i)(select|insert|update|delete|drop|union|load_file|outfile|benchmark|sleep)",
+        "(?i)(\\b(alter|truncate|declare|exec|execute|cast|convert)\\b)",
+        "(?i)('\\s*(or|and)\\s*['0-9a-zA-Z]+=\\s*['0-9a-zA-Z]+)",
+        "(?i)(--\\s|/\\*|\\*/|;--)",
+        "(?i)(information_schema|sys\\.columns|sysobjects|xp_cmdshell)",
+        "(?i)(0x[0-9a-fA-F]{2,})"
+    ],
+    "xss": [
+        "(?i)<script[\\s\\S]*?>[\\s\\S]*?</script>",
+        "(?i)javascript:\\s*[\\s\\S]*?",
+        "(?i)on(load|error|click|mouseover|focus|blur|change|submit|keyup|keydown)\\s*=",
+        "(?i)<iframe[\\s\\S]*?>",
+        "(?i)<object[\\s\\S]*?>",
+        "(?i)expression\\s*\\(",
+        "(?i)vbscript\\s*:"
+    ],
+    "scanner_paths": [
+        "(?i)/\\.git/",
+        "(?i)/\\.env",
+        "(?i)/wp-config\\.php",
+        "(?i)/xmlrpc\\.php",
+        "(?i)/cgi-bin/",
+        "(?i)/phpmyadmin",
+        "(?i)/admin\\.php",
+        "(?i)\\?XDEBUG_SESSION_START",
+        "(?i)\\.(sql|bak|backup|old|zip|tar\\.gz|dump)(\\?.*)?$",
+        "(?i)/config\\.(php|yml|yaml|json)",
+        "(?i)/\\.htpasswd",
+        "(?i)/etc/passwd",
+        "(?i)\\.\\./\\.\\.",
+        "(?i)/(shell|cmd|command|exec)\\.php"
+    ],
+    "scanner_agents": [
+        "(?i)(sqlmap|nikto|nmap|masscan|dirsearch|gobuster|wfuzz|hydra|havij|acunetix|nessus|openvas|burpsuite|zgrab)",
+        "(?i)(python-requests|go-http-client|libwww-perl|curl/7\\.)",
+        "(?i)(censys|shodan|zoomeye|binaryedge)"
+    ],
+    "cmd_injection": [
+        "(?i)(;\\s*(ls|cat|id|whoami|wget|curl|bash|sh|python|perl|ruby|php))",
+        "(?i)(\\|\\s*(ls|cat|id|whoami|wget|curl|bash))",
+        "(?i)(`[^`]*`)",
+        "(?i)\\$\\((.*?)\\)"
+    ],
+    "file_inclusion": [
+        "(?i)(file|ftp|php|zlib|data|glob|phar)://",
+        "(?i)\\.\\./\\.\\./\\.\\./",
+        "(?i)(include|require|include_once|require_once)\\s*\\("
+    ]
+}
+
