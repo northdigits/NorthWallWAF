@@ -1,0 +1,33 @@
+# =============================================
+# NorthWall WAF - Git Ignore
+# =============================================
+
+# Runtime logs (এগুলো সার্ভারে তৈরি হবে, গিটে রাখার দরকার নেই)
+logs/
+*.log
+
+# Config file (sensitive data - Telegram token, IP lists)
+config.json
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temp files
+*.tmp
+*.bak
+
