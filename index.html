@@ -329,18 +329,36 @@
 
 <script>
 // ========================================================
-// Auto Maximize Layer to Full Screen
+// Fit exactly inside aaPanel layout (Keep sidebar visible!)
 // ========================================================
 (function() {
     setTimeout(function() {
         if (typeof layer !== 'undefined') {
-            // Find current layer index and maximize it
-            var index = $('#nw-viewport-root').closest('.layui-layer').attr('times');
-            if (index) {
-                layer.full(index);
+            var $layer = $('#nw-viewport-root').closest('.layui-layer');
+            if ($layer.length) {
+                // সাইডবারের প্রস্থ বের করা (সাধারণত 180px)
+                var sideWidth = $('.sidebar').outerWidth() || $('#sidebar').outerWidth() || 180;
+                var topHeight = $('.header').outerHeight() || 50;
+
+                // লেয়ারকে সাইডবারের ডানপাশ থেকে পুরো স্ক্রিন জুড়ে ফিট করা
+                $layer.css({
+                    'top': topHeight + 'px',
+                    'left': sideWidth + 'px',
+                    'width': ($(window).width() - sideWidth) + 'px',
+                    'height': ($(window).height() - topHeight) + 'px',
+                    'box-shadow': 'none',
+                    'border': 'none',
+                    'border-radius': '0'
+                });
+
+                // কনটেন্ট এরিয়া ফুল হাইট করা
+                $layer.find('.layui-layer-content').css({
+                    'height': '100%',
+                    'overflow-y': 'auto'
+                });
             }
         }
-    }, 10);
+    }, 20);
 })();
 
 function nwSwitchTab(name, el) {
