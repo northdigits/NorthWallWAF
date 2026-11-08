@@ -156,25 +156,23 @@ Install() {
     # 5. Inject Lua WAF into Nginx (if Lua is available)
     setup_nginx_lua
 
-    # 6. Register into aaPanel database using internal Python env
-    log "Registering plugin in aaPanel database..."
+    # 6. Register into aaPanel database and sidebar menu
+    log "Registering plugin in aaPanel database and sidebar menu..."
     PANEL_PYTHON="/www/server/panel/pyenv/bin/python3"
     if [ ! -f "$PANEL_PYTHON" ]; then
         PANEL_PYTHON="python3"
     fi
 
     $PANEL_PYTHON - << 'PYEOF'
-import sys, os
+import sys, os, json
 sys.path.insert(0, '/www/server/panel/class')
+plugin_name = 'northwall_waf'
+
+# 1. Database registration
 try:
     import db
     sql = db.Sql()
-    plugin_name = 'northwall_waf'
-    
-    # First, remove any existing registration to avoid duplicates
     sql.table('plugins').where('name=?', (plugin_name,)).delete()
-    
-    # Register the plugin with proper sidebar menu configuration
     sql.table('plugins').insert({
         'pid': 0,
         'type': 10,
@@ -187,15 +185,33 @@ try:
         'ps': 'Enterprise Open-Source Web Application Firewall for aaPanel',
         'status': 1,
         'display': 1,
-        'setup': 1,
-        'menu': 'main',
-        'icon': 'shield',
-        'sort': 50
+        'setup': 1
     })
-    
-    print("Plugin registered in aaPanel database with sidebar menu")
-except Exception as e:
-    print(f"Database registration error: {e}")
+except Exception:
+    pass
+
+# 2. Sidebar Menu registration
+menu_file = '/www/server/panel/config/menu.json'
+if not os.path.exists(menu_file):
+    menu_file = '/www/server/panel/BTPanel/static/js/menu.json'
+
+if os.path.exists(menu_file):
+    try:
+        with open(menu_file, 'r', encoding='utf-8') as f:
+            menus = json.load(f)
+        if not any(m.get('name') == plugin_name for m in menus):
+            menus.append({
+                "title": "NorthWall WAF",
+                "name": plugin_name,
+                "icon": "glyphicon-shield",
+                "url": f"/plugin?action=a&name={plugin_name}",
+                "sort": 6,
+                "type": 1
+            })
+            with open(menu_file, 'w', encoding='utf-8') as f:
+                json.dump(menus, f, indent=4, ensure_ascii=False)
+    except Exception:
+        pass
 PYEOF
 
     # 7. Reload aaPanel
