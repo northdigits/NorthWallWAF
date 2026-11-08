@@ -144,7 +144,26 @@ Install() {
         fi
     fi
 
-    # 5. Set correct permissions
+    # 4. Copy template into aaPanel native templates dir
+    if [ -f "$PLUGIN_PATH/northwall.html" ]; then
+        cp -f "$PLUGIN_PATH/northwall.html" /www/server/panel/BTPanel/templates/default/northwall.html 2>/dev/null
+        log "Native full-page template installed."
+    fi
+
+    # 5. Inject Flask route for /northwall in BTPanel/__init__.py if missing
+    MAIN_INIT="/www/server/panel/BTPanel/__init__.py"
+    if [ -f "$MAIN_INIT" ] && ! grep -q "def northwall(" "$MAIN_INIT"; then
+        cat << 'FLASKOEF' >> "$MAIN_INIT"
+
+@app.route('/northwall')
+def northwall():
+    if not is_login(): return redirect('/login')
+    return render_template('northwall.html')
+FLASKOEF
+        log "Flask route /northwall injected."
+    fi
+
+    # 6. Set correct permissions
     chown -R root:root "$PLUGIN_PATH"
     chmod 755 /www/server/panel/plugin
     chmod -R 755 "$PLUGIN_PATH"
@@ -203,13 +222,13 @@ if os.path.exists(menu_file):
         # Clean any invalid entries
         menus = [m for m in menus if m.get('id') != 'memuNorthWall' and m.get('title') != 'NorthWall WAF']
         
-        # Add NorthWall WAF menu item
+        # Add NorthWall WAF full-page menu item
         menus.append({
             "title": "NorthWall WAF",
-            "href": f"/plugin?action=a&name={plugin_name}",
-            "class": "menu_safe",
+            "href": "/northwall",
+            "class": "menu_firewall",
             "id": "memuNorthWall",
-            "sort": 5
+            "sort": 6
         })
         with open(menu_file, 'w', encoding='utf-8') as f:
             json.dump(menus, f, indent=4, ensure_ascii=False)
