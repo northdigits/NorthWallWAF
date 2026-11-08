@@ -170,7 +170,11 @@ try:
     import db
     sql = db.Sql()
     plugin_name = 'northwall_waf'
+    
+    # First, remove any existing registration to avoid duplicates
     sql.table('plugins').where('name=?', (plugin_name,)).delete()
+    
+    # Register the plugin with proper sidebar menu configuration
     sql.table('plugins').insert({
         'pid': 0,
         'type': 10,
@@ -183,10 +187,15 @@ try:
         'ps': 'Enterprise Open-Source Web Application Firewall for aaPanel',
         'status': 1,
         'display': 1,
-        'setup': 1
+        'setup': 1,
+        'menu': 'main',
+        'icon': 'shield',
+        'sort': 50
     })
+    
+    print("Plugin registered in aaPanel database with sidebar menu")
 except Exception as e:
-    pass
+    print(f"Database registration error: {e}")
 PYEOF
 
     # 7. Reload aaPanel

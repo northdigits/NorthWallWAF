@@ -7,5 +7,9 @@
     "author": "NorthDigits",
     "home": "https://northdigits.com",
     "date": "2026-11-08",
-    "display": 1
+    "display": 1,
+    "menu": "main",
+    "icon": "shield",
+    "sort": 50,
+    "menu_name": "NorthWall WAF"
 }
