@@ -152,7 +152,40 @@ Install() {
     # 5. Inject Lua WAF into Nginx (if Lua is available)
     setup_nginx_lua
 
-    # 6. Reload aaPanel
+    # 6. Register into aaPanel database using internal Python env
+    log "Registering plugin in aaPanel database..."
+    PANEL_PYTHON="/www/server/panel/pyenv/bin/python3"
+    if [ ! -f "$PANEL_PYTHON" ]; then
+        PANEL_PYTHON="python3"
+    fi
+
+    $PANEL_PYTHON - << 'PYEOF'
+import sys, os
+sys.path.insert(0, '/www/server/panel/class')
+try:
+    import db
+    sql = db.Sql()
+    plugin_name = 'northwall_waf'
+    sql.table('plugins').where('name=?', (plugin_name,)).delete()
+    sql.table('plugins').insert({
+        'pid': 0,
+        'type': 10,
+        'title': 'NorthWall WAF',
+        'name': plugin_name,
+        'price': 0,
+        'author': 'NorthDigits',
+        'home': 'https://northdigits.com',
+        'version': '1.0.0',
+        'ps': 'Enterprise Open-Source Web Application Firewall for aaPanel',
+        'status': 1,
+        'display': 1,
+        'setup': 1
+    })
+except Exception as e:
+    pass
+PYEOF
+
+    # 7. Reload aaPanel
     reload_aapanel
 
     echo ""
