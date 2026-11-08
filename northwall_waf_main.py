@@ -174,8 +174,38 @@ class northwall_waf_main:
         return {"status": True, "msg": f"{ip} removed from blacklist"}
 
     def _validate_ip_or_cidr(self, ip):
-        cidr_pattern = r"^(\d{1,3}\.){3}\d{1,3}(/\d{1,2})?$"
-        return bool(re.match(cidr_pattern, ip))
+        """Validate IP address or CIDR notation - octets must be 0-255"""
+        # IPv4 or IPv4 CIDR
+        ipv4_pattern = r"^(\d{1,3}\.){3}\d{1,3}(/\d{1,2})?$"
+        # IPv6 placeholder (basic)
+        ipv6_pattern = r"^([0-9a-fA-F]*:)+[0-9a-fA-F:]+$"
+        
+        if re.match(ipv6_pattern, ip):
+            return True  # Basic IPv6 acceptance - can be enhanced later
+            
+        if not re.match(ipv4_pattern, ip):
+            return False
+        
+        # Validate octets are 0-255 for IPv4
+        parts = ip.split("/")[0].split(".")
+        if len(parts) != 4:
+            return False
+        
+        for octet in parts:
+            try:
+                val = int(octet)
+                if val < 0 or val > 255:
+                    return False
+            except ValueError:
+                return False
+        
+        # Validate CIDR prefix length (0-32 for IPv4)
+        if "/" in ip:
+            prefix = int(ip.split("/")[1])
+            if prefix < 0 or prefix > 32:
+                return False
+        
+        return True
 
     # =====================================================
     # API: GET BLOCKED LOGS (aaPanel UI Log ট্যাবের জন্য)
@@ -317,7 +347,7 @@ class northwall_waf_main:
         
         result = self.send_telegram_alert(
             ip="1.2.3.4",
-            attack_type="TEST - SQL Injection",
+            attack_type="TEST - WAF Alert",  # Changed from hardcoded SQL Injection
             url="/test?id=1' OR '1'='1",
             method="GET"
         )
@@ -346,6 +376,16 @@ class northwall_waf_main:
         new_content = content.replace("server {", f"server {{\n{inject_line}", 1)
         with open(site_conf, "w", encoding="utf-8") as f:
             f.write(new_content)
+
+        # Additional server blocks handling - inject after second server { if present
+        if new_content.count("server {") > 1:
+            second_server_idx = new_content.find("server {", new_content.find("server {") + 1)
+            if second_server_idx != -1:
+                after_second = new_content[second_server_idx:]
+                after_second = after_second.replace("server {", f"server {{\n{inject_line}", 1)
+                new_content = new_content[:second_server_idx] + after_second
+                with open(site_conf, "w", encoding="utf-8") as f:
+                    f.write(new_content)
 
         # Nginx reload
         os.system("nginx -s reload")

@@ -683,8 +683,19 @@ function saveToggle(key, val) {
 }
 
 function saveCCConfig() {
-    const limit = document.getElementById('cc-limit').value;
-    const ban   = document.getElementById('cc-ban').value;
+    const limit = parseInt(document.getElementById('cc-limit').value) || 100;
+    const ban   = parseInt(document.getElementById('cc-ban').value) || 3600;
+    
+    // Validate limits
+    if (limit < 1 || limit > 10000) {
+        alert("❌ Max requests per minute must be between 1 and 10000");
+        return;
+    }
+    if (ban < 1 || ban > 86400) {
+        alert("❌ Ban duration must be between 1 and 86400 seconds (24 hours)");
+        return;
+    }
+    
     nwAPI('update_config', { cc_limit: limit, cc_ban_seconds: ban }, function(res) {
         alert(res.status ? '✅ CC settings saved!' : '❌ ' + res.msg);
     });

@@ -158,10 +158,21 @@ local function run_waf()
     end
 
     -- 7. COMMAND INJECTION DETECTION
-    if cfg.sqli_defense then
+    if cfg.cmd_defense then
         for _, pattern in ipairs(rules.cmd_injection or {}) do
             if ngx.re.find(req_uri, pattern, "joi") then
                 write_log({time=os.date("%Y-%m-%d %H:%M:%S"), ip=client_ip, attack="Command Injection", url=req_uri, method=req_method})
+                ngx.exit(403)
+                return
+            end
+        end
+    end
+
+    -- 8. FILE INCLUSION DETECTION
+    if cfg.file_inc_defense then
+        for _, pattern in ipairs(rules.file_inclusion or {}) do
+            if ngx.re.find(req_uri, pattern, "joi") then
+                write_log({time=os.date("%Y-%m-%d %H:%M:%S"), ip=client_ip, attack="File Inclusion", url=req_uri, method=req_method})
                 ngx.exit(403)
                 return
             end
