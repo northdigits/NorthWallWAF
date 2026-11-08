@@ -209,7 +209,7 @@ try:
 except Exception:
     pass
 
-# 2. Sidebar Menu registration with aaPanel exact schema
+# 2. Sidebar Menu registration
 menu_file = '/www/server/panel/config/menu.json'
 if not os.path.exists(menu_file):
     menu_file = '/www/server/panel/BTPanel/static/js/menu.json'
@@ -222,11 +222,11 @@ if os.path.exists(menu_file):
         # Clean any invalid entries
         menus = [m for m in menus if m.get('id') != 'memuNorthWall' and m.get('title') != 'NorthWall WAF']
         
-        # Add NorthWall WAF full-page menu item
+        # Add NorthWall WAF full-view menu item
         menus.append({
             "title": "NorthWall WAF",
-            "href": "/northwall",
-            "class": "menu_firewall",
+            "href": f"/plugin?action=a&name={plugin_name}",
+            "class": "menu_safe",
             "id": "memuNorthWall",
             "sort": 6
         })
