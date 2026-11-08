@@ -92,6 +92,20 @@ class northwall_waf_main:
             pass
 
     # =====================================================
+    # API: RENDER MAIN UI (aaPanel যখন প্লাগইনে ক্লিক করে)
+    # =====================================================
+    def index(self, get):
+        """aaPanel প্লাগইন ইন্টারফেস রেন্ডার করার প্রধান মেথড"""
+        html_file = os.path.join(self.__plugin_path, "index.html")
+        if os.path.exists(html_file):
+            try:
+                with open(html_file, "r", encoding="utf-8") as f:
+                    return f.read()
+            except Exception as e:
+                return f"<h3>Error reading index.html: {e}</h3>"
+        return "<h3>NorthWall WAF index.html not found!</h3>"
+
+    # =====================================================
     # API: GET STATUS (aaPanel UI তে সব ডাটা দেখানোর জন্য)
     # =====================================================
     def get_status(self, get):
